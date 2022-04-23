@@ -1,0 +1,59 @@
+.App {
+  text-align: center;
+  min-height: 100vh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+input {
+  margin-top: 30px;
+  width: 400px;
+  height: 40px;
+  font-size: 25px;
+  text-align: center;
+}
+
+ul {
+  margin: 20px;
+  padding: 0px;
+  animation: shake 0.3s;
+}
+
+@keyframes shake {
+  0% { transform: translate(1px, 1px) rotate(0deg); }
+  10% { transform: translate(-1px, -2px) rotate(-1deg); }
+  20% { transform: translate(-3px, 0px) rotate(1deg); }
+  30% { transform: translate(3px, 2px) rotate(0deg); }
+  40% { transform: translate(1px, -1px) rotate(1deg); }
+  50% { transform: translate(-1px, 2px) rotate(-1deg); }
+  60% { transform: translate(-3px, 1px) rotate(0deg); }
+  70% { transform: translate(3px, 1px) rotate(-1deg); }
+  80% { transform: translate(-1px, -1px) rotate(1deg); }
+  90% { transform: translate(1px, 2px) rotate(0deg); }
+  100% { transform: translate(1px, -2px) rotate(-1deg); }
+}
+
+li {
+  margin: 0px 5px;
+  display: inline-block;
+  width: 75px;
+  height: 75px;
+  text-align: center;
+  border: solid 1px #888;
+  line-height: 75px;
+}
+
+li span {
+  display: block;
+}
+
+li span.ok {
+  background-color: green;
+}
+
+li span.present {
+  background-color: goldenrod;
+}
