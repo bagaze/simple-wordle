@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Simple Wordle",
+  "name": "Simple Wordle in React",
   "icons": [
     {
       "src": "favicon.ico",
