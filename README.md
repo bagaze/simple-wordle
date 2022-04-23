@@ -2,6 +2,28 @@
 
 Wordle project bootstrapped using [Create React App](https://github.com/facebook/create-react-app).
 
+## Prerequisites
+
+[Docker](https://www.docker.com/get-started)
+
+## Setup
+
+You can customize the word to find and the number of tries in `./src/data/conf.json`
+
+Build the docker image
+
+```
+docker build -t baptistegaze/simple-wordle .
+```
+
+## Run
+
+```
+docker run -d --name simple-wordle -p 3000:3000 baptistegaze/simple-wordle
+```
+
+The app is available at [http://localhost:3000](http://localhost:3000)
+
 ## Available Scripts
 
 In the project directory, you can run:
