@@ -7,57 +7,72 @@ import WordTries from './components/WordTries';
 
 import conf from './data/conf.json';
 
+import { useStateWithLocalStorage } from './utils/hooks';
+
 function App() {
-    const [ wordTries, setWordTries ] = useState([]);
-    const [ tryCount, setTryCount ] = useState(0);
-    const [ finished, setFinished ] = useState(false);
-    const [ success, setSuccess ] = useState(false);
+    const [ finished, setFinished ] = useStateWithLocalStorage('finished', false);
+    const [ success, setSuccess ] = useStateWithLocalStorage('success', false);
 
-    const wordToFind = conf.wordToFind.toUpperCase();
-    const numberOfTries = conf.numberOfTries;
+    const [ wordTries, setWordTries ] = useStateWithLocalStorage('wordTries', []);
+    const [ numberOfLetters, setNumberOfLetters ] = useStateWithLocalStorage('numberOfLetters', 0);
+    const [ dayNumber, setDayNumber ] = useStateWithLocalStorage('dayNumber', 0);
 
-    const generateWordTry = (wordInput) => {
-        let wToFind = wordToFind.split('');
-        let wordTry = [];
-
-        wordInput.split('').forEach( (letter, index) => {
-            if (letter === wordToFind[index]) {
-                wordTry.push({letter: letter, status: 'ok'});
-                wToFind[index] = ''
-            } else {
-                wordTry.push({letter: letter, status: 'ko'});
-            }
-        });
-
-        wordTry.filter( ({_, status}) => status === 'ko' ).forEach( (letterWithStatus) => {
-            const letterIsPresentIdx = wToFind.indexOf(letterWithStatus.letter);
-            if (letterIsPresentIdx !== -1) {
-                letterWithStatus.status = 'present';
-                wToFind[letterIsPresentIdx] = '';
-            }
-        });
-
-        return wordTry;
-    };
+    const [ backendApiBaseUrl, setBackendApiBaseUrl ] = useState('');
+    const [ numberOfTries, setNumberOfTries ] = useState(0);
 
     const handleSubmit = (e) => {
-        const wordInput = e.target.word_input.value.toUpperCase();
+        const fetchTrial = async (wordInput) => {
+            const resp = await fetch(`${backendApiBaseUrl}/trial`, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({word: wordInput})
+            });
+            const trial = await resp.json();
+            setWordTries([...wordTries, trial.results]);
 
-        setWordTries([...wordTries, generateWordTry(wordInput)]);
-        setTryCount(tryCount + 1);
-
-        if (wordInput === wordToFind) {
-            setFinished(true);
-            setSuccess(true);
-            confetti(e);
+            if (trial.status === 'ok') {
+                setFinished(true);
+                setSuccess(true);
+                confetti(e);
+            }
         }
+        fetchTrial(e.target.word_input.value.toUpperCase());
     };
 
     useEffect( () => {
-        if (wordTries.length >= numberOfTries) {
+        setBackendApiBaseUrl(conf.BACKEND_API_BASE_URL);
+        setNumberOfTries(conf.numberOfTries);
+    }, []);
+
+    useEffect( () => {
+        const getConf = async () => {
+            const resp = await fetch(`${backendApiBaseUrl}/conf`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+            const conf = await resp.json();
+
+            if (`${conf.day_number}` !== localStorage.getItem('dayNumber')) {
+                setNumberOfLetters(conf.number_of_letters);
+                setDayNumber(conf.day_number);
+                setWordTries([]);
+            }
+        }
+        if (backendApiBaseUrl) {
+            getConf();
+        }
+    }, [backendApiBaseUrl, setNumberOfLetters, setDayNumber, setWordTries]);
+
+    useEffect( () => {
+        if (numberOfTries !== 0 && wordTries.length >= numberOfTries) {
             setFinished(true);
         }
-    }, [wordTries, numberOfTries]);
+    }, [wordTries, numberOfTries, setFinished]);
 
     const confetti = (elem) => {
         party.confetti(elem.target);
@@ -68,14 +83,16 @@ function App() {
             <h1>Simple Wordle</h1>
             { !finished && (
                 <>
-                    <h3>{wordToFind.length} letters word in {numberOfTries} tries</h3>
-                    <h6>{numberOfTries - wordTries.length} remaining</h6>
+                    <h2>Day {dayNumber}</h2>
+                    <p>{numberOfLetters} letters word in {numberOfTries} tries</p>
+                    <p>{numberOfTries - wordTries.length} remaining</p>
                 </>
             )}
             { finished && success && <h3>Great job!</h3>}
             { finished && !success && <h3>Try again!</h3>}
-            <WordTries wordTries={wordTries} wordToFind={wordToFind} />
-            <WordInput wordLen={wordToFind.length} disabled={finished} onSubmit={handleSubmit} />
+            { finished && <p>Come back tomorrow for another word to find!</p>}
+            <WordTries wordTries={wordTries} />
+            <WordInput wordLen={numberOfLetters} disabled={finished} onSubmit={handleSubmit} />
         </div>
     );
 }
