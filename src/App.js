@@ -30,6 +30,10 @@ function App() {
                 },
                 body: JSON.stringify({word: wordInput})
             });
+            if (!resp.ok) {
+                const message = `An error has occured: ${resp.status}`;
+                throw new Error(message);
+            }
             const trial = await resp.json();
             setWordTries([...wordTries, trial.results]);
 
@@ -48,6 +52,14 @@ function App() {
     }, []);
 
     useEffect( () => {
+        const resetLocalStorage = (conf) => {
+            setNumberOfLetters(conf.number_of_letters);
+            setDayNumber(conf.day_number);
+            setWordTries([]);
+            setFinished(false);
+            setSuccess(false);
+        };
+
         const getConf = async () => {
             const resp = await fetch(`${backendApiBaseUrl}/conf`, {
                 method: 'GET',
@@ -55,18 +67,21 @@ function App() {
                     'Accept': 'application/json'
                 }
             });
+            if (!resp.ok) {
+                const message = `An error has occured: ${resp.status}`;
+                throw new Error(message);
+            }
             const conf = await resp.json();
 
+            // Reset local storage on a new day
             if (`${conf.day_number}` !== localStorage.getItem('dayNumber')) {
-                setNumberOfLetters(conf.number_of_letters);
-                setDayNumber(conf.day_number);
-                setWordTries([]);
+                resetLocalStorage(conf);
             }
         }
         if (backendApiBaseUrl) {
             getConf();
         }
-    }, [backendApiBaseUrl, setNumberOfLetters, setDayNumber, setWordTries]);
+    }, [backendApiBaseUrl, setNumberOfLetters, setDayNumber, setWordTries, setFinished, setSuccess]);
 
     useEffect( () => {
         if (numberOfTries !== 0 && wordTries.length >= numberOfTries) {
