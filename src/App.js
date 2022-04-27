@@ -5,7 +5,7 @@ import WordInput from './components/WordInput';
 import './styles/App.css';
 import WordTries from './components/WordTries';
 
-import conf from './data/conf.json';
+import config from './data/config.json';
 
 import { useStateWithLocalStorage } from './utils/hooks';
 
@@ -43,8 +43,8 @@ function App() {
     };
 
     useEffect( () => {
-        setBackendApiBaseUrl(conf.BACKEND_API_BASE_URL);
-        setNumberOfTries(conf.numberOfTries);
+        setBackendApiBaseUrl(config.BACKEND_API_BASE_URL);
+        setNumberOfTries(config.numberOfTries);
     }, []);
 
     useEffect( () => {

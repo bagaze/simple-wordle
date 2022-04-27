@@ -1,0 +1,4 @@
+{
+    "numberOfTries": 6,
+    "BACKEND_API_BASE_URL": "https://bagaze-wordle-backend.herokuapp.com/api"
+}

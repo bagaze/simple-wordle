@@ -1,19 +1,33 @@
-# pull official base image
-FROM node:18-alpine
 
-# set working directory
-WORKDIR /src
+FROM --platform=linux/amd64 node:18-alpine  as js-base
 
-# add `/app/node_modules/.bin` to $PATH
-ENV PATH /app/node_modules/.bin:$PATH
+WORKDIR /app
 
-# install app dependencies
-COPY package.json ./
+# BUILD IMAGE
+FROM js-base as build-stage
+
+# Install dependencies
+COPY package*.json ./
 RUN npm install --silent
-RUN npm install react-scripts@3.4.1 -g --silent
 
-# add app
-COPY . ./
+# Build
+COPY . .
+# Use production conf
+COPY ./src/data/config.prod.json /app/src/data/config.json
+RUN npm run build
 
-# start app
-CMD ["npm", "start"]
+# SERVING IMAGE
+FROM js-base as production
+
+# Copy built files
+COPY --from=build-stage /app/build /app/build
+
+# Install serve
+RUN npm install -g serve
+
+# Setup a non-root user to run the app
+RUN adduser -D myuser
+USER myuser
+
+# Run 
+CMD serve -l $PORT -s build
