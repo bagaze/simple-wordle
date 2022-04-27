@@ -65,3 +65,38 @@ li span.ok {
 li span.present {
   background-color: goldenrod;
 }
+
+/* Add media queries for responsiveness - when the screen is 500px wide or less, stack the links on top of each other */
+@media screen and (max-width: 750px) {
+  li {
+    margin: 0px 2px;
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
+  }
+  input {
+    margin-top: 20px;
+    width: 300px;
+    height: 35px;
+  }
+  ul {
+    margin: 15px;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  li {
+    margin: 0px 1px;
+    width: 25px;
+    height: 25px;
+    line-height: 25px;
+  }
+  input {
+    margin-top: 10px;
+    width: 220px;
+    height: 30px;
+  }
+  ul {
+    margin: 10px;
+  }
+}
