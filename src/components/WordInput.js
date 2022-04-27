@@ -4,6 +4,17 @@ import { useState } from "react"
 function WordInput({ wordLen, disabled, onSubmit }) {
     const [ word, setWord ] = useState("");
 
+    const handleChange = (e) => {
+        if (e.target.value.length <= wordLen) {
+            setWord(e.target.value);
+        }
+        if (e.target.value.length >= wordLen) {
+            e.target.style="color: darkgreen;";
+        } else {
+            e.target.style="color: black;";
+        }
+    };
+
     const handleKeyDown = (e) => {
         const keyCode = e.keyCode;
 
@@ -34,7 +45,7 @@ function WordInput({ wordLen, disabled, onSubmit }) {
                 autoComplete="off"
                 value={word}
                 disabled={disabled}
-                onChange={(e) => setWord(e.target.value)}
+                onChange={handleChange}
                 onKeyDown={handleKeyDown}
             />
          </form>
