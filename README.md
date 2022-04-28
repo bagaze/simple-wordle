@@ -2,6 +2,10 @@
 
 Wordle project bootstrapped using [Create React App](https://github.com/facebook/create-react-app).
 
+## Demo application
+
+A demo is accessible at [https://bagaze-wordle.herokuapp.com/](https://bagaze-wordle.herokuapp.com/)
+
 ## Prerequisites
 
 [Docker](https://www.docker.com/get-started)
