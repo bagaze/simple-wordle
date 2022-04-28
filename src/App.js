@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import party from 'party-js';
 
+import Layout from './components/Layout';
 import WordInput from './components/WordInput';
-import './styles/App.css';
 import WordTries from './components/WordTries';
+import './styles/App.css';
 
 import config from './data/config.json';
 
@@ -114,26 +115,23 @@ function App() {
 
     if (loading) {
         return (
-            <div className="App">
-                <h1>Simple Wordle</h1>
+            <Layout>
                 <p>Loading ...</p>
-            </div>
+            </Layout>
         );
     }
 
     if (errorLoading) {
         return (
-            <div className="App">
-                <h1>Simple Wordle</h1>
+            <Layout>
                 <p>Error when loading the page...</p>
                 <p>Try to refresh the application</p>
-            </div>
+            </Layout>
         );
     }
 
     return (
-        <div className="App">
-            <h1>Simple Wordle</h1>
+        <Layout>
             { !finished && (
                 <>
                     <h2>Day {dayNumber}</h2>
@@ -146,7 +144,7 @@ function App() {
             { finished && <p>Come back tomorrow for another word to find!</p>}
             <WordTries wordTries={wordTries} />
             <WordInput wordLen={numberOfLetters} disabled={finished} onSubmit={handleSubmit} />
-        </div>
+        </Layout>
     );
 }
 
