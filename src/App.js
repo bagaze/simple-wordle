@@ -10,6 +10,9 @@ import config from './data/config.json';
 import { useStateWithLocalStorage } from './utils/hooks';
 
 function App() {
+    const [ loading, setLoading ] = useState(true);
+    const [ errorLoading, setErrorLoading ] = useState(false);
+
     const [ finished, setFinished ] = useStateWithLocalStorage('finished', false);
     const [ success, setSuccess ] = useStateWithLocalStorage('success', false);
 
@@ -22,25 +25,31 @@ function App() {
 
     const handleSubmit = (e) => {
         const fetchTrial = async (wordInput) => {
-            const resp = await fetch(`${backendApiBaseUrl}/trial`, {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({word: wordInput})
-            });
-            if (!resp.ok) {
-                const message = `An error has occured: ${resp.status}`;
-                throw new Error(message);
-            }
-            const trial = await resp.json();
-            setWordTries([...wordTries, trial.results]);
+            try {
+                const resp = await fetch(`${backendApiBaseUrl}/trial`, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({word: wordInput})
+                });
+                if (!resp.ok) {
+                    const message = `An error has occured: ${resp.status}`;
+                    throw new Error(message);
+                }
+                const trial = await resp.json();
+                setWordTries([...wordTries, trial.results]);
 
-            if (trial.status === 'ok') {
-                setFinished(true);
-                setSuccess(true);
-                confetti(e);
+                if (trial.status === 'ok') {
+                    setFinished(true);
+                    setSuccess(true);
+                    confetti(e);
+                }
+            } catch(e) {
+                const message = `An error has occured: ${e}`;
+                setErrorLoading(true);
+                throw new Error(message);
             }
         }
         fetchTrial(e.target.word_input.value.toUpperCase());
@@ -61,21 +70,31 @@ function App() {
         };
 
         const getConf = async () => {
-            const resp = await fetch(`${backendApiBaseUrl}/conf`, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json'
-                }
-            });
-            if (!resp.ok) {
-                const message = `An error has occured: ${resp.status}`;
-                throw new Error(message);
-            }
-            const conf = await resp.json();
+            try {
+                const resp = await fetch(`${backendApiBaseUrl}/conf`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
 
-            // Reset local storage on a new day
-            if (`${conf.day_number}` !== localStorage.getItem('dayNumber')) {
-                resetLocalStorage(conf);
+                if (!resp.ok) {
+                    const message = `An error has occured: ${resp.status}`;
+                    setErrorLoading(true);
+                    throw new Error(message);
+                }
+                const conf = await resp.json();
+
+                // Reset local storage on a new day
+                if (`${conf.day_number}` !== localStorage.getItem('dayNumber')) {
+                    resetLocalStorage(conf);
+                }
+            } catch(e) {
+                const message = `An error has occured: ${e}`;
+                setErrorLoading(true);
+                throw new Error(message);
+            } finally {
+                setLoading(false);
             }
         }
         if (backendApiBaseUrl) {
@@ -92,6 +111,25 @@ function App() {
     const confetti = (elem) => {
         party.confetti(elem.target);
     };
+
+    if (loading) {
+        return (
+            <div className="App">
+                <h1>Simple Wordle</h1>
+                <p>Loading ...</p>
+            </div>
+        );
+    }
+
+    if (errorLoading) {
+        return (
+            <div className="App">
+                <h1>Simple Wordle</h1>
+                <p>Error when loading the page...</p>
+                <p>Try to refresh the application</p>
+            </div>
+        );
+    }
 
     return (
         <div className="App">
